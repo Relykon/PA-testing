@@ -14,9 +14,15 @@ class Organizations extends React.Component {
         OrganizationsCalls.searchOrganizations()
             .then(orgs => {
                 console.log(orgs, 'Organizations')
+                console.log(this.state.organizations, 'L17')
                 this.setState({ organizations: orgs });
+                console.log(this.state.organizations, 'L19')
             })
             .catch(err => Error(err, "Loading Organizations"));
+    }
+
+    componentDidMount() {
+        this.loadOrganizations();
     }
 
     render() {
@@ -26,12 +32,13 @@ class Organizations extends React.Component {
                 <h3>{organization.charityName}</h3>
                 <h4>{organization.tagLine}</h4>
                 <p>{organization.mission}</p>
-                <p>{organization.category}</p>
-                <p>{organization.currentRating}</p>
-                <p>{organization.cause}</p>
+                <p>Category: {organization.category}</p>
+                <p>Current Rating: {organization.currentRating}</p>
+                <p>Cause: {organization.cause}</p>
                 <a href={organization.websiteURL}>{organization.charityName}'s Website</a>
             </div>
         ));
+        console.log(this.state.organizations, 'L30')
 
         return (
             <div>
