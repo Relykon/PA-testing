@@ -1,5 +1,3 @@
-// import { promised } from "q";
-
 const OrganizationsCalls = {};
 
 const API_KEY = process.env.REACT_APP_API_KEY;
@@ -7,7 +5,7 @@ const ID = process.env.REACT_APP_ID;
 
 OrganizationsCalls.searchOrganizations = function searchOrganizations() {
     // console.log('searchOrganizations')
-    const url = `https://api.data.charitynavigator.org/v2/Organizations?app_id=${ID}&app_key=${API_KEY}&pageSize=10&rated=true&state=WA&city=Seattle`;
+    const url = `https://api.data.charitynavigator.org/v2/Organizations?app_id=${ID}&app_key=${API_KEY}&pageSize=5&rated=true&state=WA&city=Seattle`;
     return fetch(url, {
         method: 'GET',
         headers: {
@@ -15,9 +13,14 @@ OrganizationsCalls.searchOrganizations = function searchOrganizations() {
         }
     })
     .then(result => result.json())
+    .then(result => OrganizationsCalls.simplifyOrgRatings(result))
     .then(data => OrganizationsCalls.getOrganizationDetails(data))
     .catch(err => Error(err, "Loading Organizations"));
 }
+
+OrganizationsCalls.getOrganizationDetails = function getOrganizationDetails(organizations) {
+    return Promise.all(organizations.map(organization => OrganizationsCalls.getOrganization(organization.ein)))
+};
 
 OrganizationsCalls.getOrganization = function getOrganization(ein) {
     console.log('about to fetch')
@@ -31,28 +34,38 @@ OrganizationsCalls.getOrganization = function getOrganization(ein) {
     .then(result => {
         if (result.status === 200) return result.json()
     })
-    .then(data => OrganizationsCalls.simplifyOrganization(data))
+        .then(data => OrganizationsCalls.simplifyOrgDetails(data))
     .catch(err => Error(err, "Loading Organization"));
 }
 
-OrganizationsCalls.getOrganizationDetails = function getOrganizationDetails(organizations) {
-    return Promise.all(organizations.map(organization => OrganizationsCalls.getOrganization(organization.ein)))
+OrganizationsCalls.simplifyOrgRatings = function simplifyOrgRatings(organization) {
+    console.log(organization, 'line42')
+    const orgRatingDetails = {
+        ratingDate: organization.currentRating.publicationDate,
+        ratingImg: organization.currentRating.ratingImage.small,
+        rating: organization.currentRating.rating,
+        financialRating: organization.currentRating.financialRating.score,
+        accountabilityRating: organization.currentRating.accountabilityRating.score
+    };
+    return orgRatingDetails;
 };
 
-OrganizationsCalls.simplifyOrganization = function simplifyOrganization(organization) {
+OrganizationsCalls.simplifyOrgDetails = function simplifyOrgDetails(organization) {
     console.log(organization, 'ooo')
     const orgDetails = {
         charityName: organization.charityName,
         ein: organization.ein,
         tagLine: organization.tagLine,
         mission: organization.mission,
-        currentRating: organization.currentRating.score,
         website: organization.websiteURL,
         cause: organization.cause.causeName,
         category: organization.category.categoryName,
         city: organization.mailingAddress.city,
         state: organization.mailingAddress.stateOrProvince,
-        phone: organization.phoneNumber
+        phone: organization.phoneNumber,
+        email: organization.generalEmail,
+        currentRating: organization.currentRating.score
+
     };
     return orgDetails;
 };

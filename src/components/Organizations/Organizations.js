@@ -14,24 +14,13 @@ class Organizations extends React.Component {
     loadOrganizations() {
         OrganizationsCalls.searchOrganizations()
             .then(orgs => {
-                // console.log(orgs)
                 this.setState({ organizations: orgs });
             })
             .catch(err => Error(err, "Loading Organizations"));
     }
 
-    loadOrganization() {
-        // OrganizationsCalls.getOrganization()
-        // .then(org => {
-        //     console.log(org)
-        //     this.setState({ organization: org });
-        // })
-        // .catch(err => Error(err, "Loading Organization"));
-    }
-
     componentDidMount() {
         this.loadOrganizations();
-        this.loadOrganization();
     }
 
     render() {
@@ -44,10 +33,16 @@ class Organizations extends React.Component {
                 <h4>{organization.tagLine}</h4>
                 <p>{organization.mission}</p>
                 <p><b>Category: </b>{organization.category}</p>
-                <p><b>Current Rating: </b>{organization.currentRating}</p>
+                <p><b>Current Rating: </b>{organization.currentRating} <em>/100</em></p>
+                    {/* <li>Rating Publication: {organization.ratingDate}</li>
+                    <li>{organization.ratingImg}</li>
+                    <li>{organization.rating}</li>
+                    <li>{organization.financialRating}</li>
+                    <li>{organization.accountabilityRating}</li> */}
                 <p><b>Cause: </b>{organization.cause}</p>
                 <a href={organization.website}>{organization.charityName}'s Website</a>
-                <p>Phone Number: {organization.phone}</p>
+                <p><b>Phone Number: </b>{organization.phone}</p>
+                <p><b>Email: </b>{organization.email}</p>
             </div>
         ));
         console.log(this.state.organizations, 'L30')
