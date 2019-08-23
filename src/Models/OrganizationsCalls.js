@@ -13,18 +13,18 @@ OrganizationsCalls.searchOrganizations = function searchOrganizations() {
         }
     })
     .then(result => result.json())
-    .then(result => OrganizationsCalls.simplifyOrgRatings(result))
     .then(data => OrganizationsCalls.getOrganizationDetails(data))
+    // .then(result => OrganizationsCalls.simplifyOrgRatings(result))
     .catch(err => Error(err, "Loading Organizations"));
 }
 
 OrganizationsCalls.getOrganizationDetails = function getOrganizationDetails(organizations) {
-    return Promise.all(organizations.map(organization => OrganizationsCalls.getOrganization(organization.ein)))
+    return Promise.all(organizations.map(organization => OrganizationsCalls.getOrganization(organization)))
 };
 
-OrganizationsCalls.getOrganization = function getOrganization(ein) {
+OrganizationsCalls.getOrganization = function getOrganization(organization) {
     console.log('about to fetch')
-    const url = `https://api.data.charitynavigator.org/v2/Organizations/${ein}?app_id=${ID}&app_key=${API_KEY}`;
+    const url = `https://api.data.charitynavigator.org/v2/Organizations/${organization.ein}?app_id=${ID}&app_key=${API_KEY}`;
     return fetch(url, {
         method: 'GET',
         headers: {
@@ -34,21 +34,24 @@ OrganizationsCalls.getOrganization = function getOrganization(ein) {
     .then(result => {
         if (result.status === 200) return result.json()
     })
-        .then(data => OrganizationsCalls.simplifyOrgDetails(data))
+    .then(data => {
+        const orgDetails = {...data, ...organization };
+        return OrganizationsCalls.simplifyOrgDetails(orgDetails);
+    })
     .catch(err => Error(err, "Loading Organization"));
 }
 
-OrganizationsCalls.simplifyOrgRatings = function simplifyOrgRatings(organization) {
-    console.log(organization, 'line42')
-    const orgRatingDetails = {
-        ratingDate: organization.currentRating.publicationDate,
-        ratingImg: organization.currentRating.ratingImage.small,
-        rating: organization.currentRating.rating,
-        financialRating: organization.currentRating.financialRating.score,
-        accountabilityRating: organization.currentRating.accountabilityRating.score
-    };
-    return orgRatingDetails;
-};
+// OrganizationsCalls.simplifyOrgRatings = function simplifyOrgRatings(organization) {
+//     console.log(organization, 'line42')
+//     const orgRatingDetails = {
+//         ratingDate: organization.currentRating.publicationDate,
+//         ratingImg: organization.currentRating.ratingImage.small,
+//         rating: organization.currentRating.rating,
+//         financialRating: organization.currentRating.financialRating.score,
+//         accountabilityRating: organization.currentRating.accountabilityRating.score
+//     };
+//     return orgRatingDetails;
+// };
 
 OrganizationsCalls.simplifyOrgDetails = function simplifyOrgDetails(organization) {
     console.log(organization, 'ooo')
@@ -63,8 +66,13 @@ OrganizationsCalls.simplifyOrgDetails = function simplifyOrgDetails(organization
         city: organization.mailingAddress.city,
         state: organization.mailingAddress.stateOrProvince,
         phone: organization.phoneNumber,
-        email: organization.generalEmail,
-        currentRating: organization.currentRating.score
+        email: organization.generalEmail || 'None Available',
+        currentRating: organization.currentRating.score,
+        ratingDate: organization.currentRating.publicationDate,
+        ratingImg: organization.currentRating.ratingImage.small,
+        rating: organization.currentRating.rating,
+        financialRating: organization.currentRating.financialRating.score,
+        accountabilityRating: organization.currentRating.accountabilityRating.score
 
     };
     return orgDetails;
