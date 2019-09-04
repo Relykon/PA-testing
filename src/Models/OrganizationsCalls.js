@@ -4,7 +4,6 @@ const API_KEY = process.env.REACT_APP_API_KEY;
 const ID = process.env.REACT_APP_ID;
 
 OrganizationsCalls.searchOrganizations = function searchOrganizations() {
-    // console.log('searchOrganizations')
     const url = `https://api.data.charitynavigator.org/v2/Organizations?app_id=${ID}&app_key=${API_KEY}&pageSize=5&rated=true&state=WA&city=Seattle`;
     return fetch(url, {
         method: 'GET',
@@ -14,7 +13,6 @@ OrganizationsCalls.searchOrganizations = function searchOrganizations() {
     })
     .then(result => result.json())
     .then(data => OrganizationsCalls.getOrganizationDetails(data))
-    // .then(result => OrganizationsCalls.simplifyOrgRatings(result))
     .catch(err => Error(err, "Loading Organizations"));
 }
 
@@ -40,18 +38,6 @@ OrganizationsCalls.getOrganization = function getOrganization(organization) {
     })
     .catch(err => Error(err, "Loading Organization"));
 }
-
-// OrganizationsCalls.simplifyOrgRatings = function simplifyOrgRatings(organization) {
-//     console.log(organization, 'line42')
-//     const orgRatingDetails = {
-//         ratingDate: organization.currentRating.publicationDate,
-//         ratingImg: organization.currentRating.ratingImage.small,
-//         rating: organization.currentRating.rating,
-//         financialRating: organization.currentRating.financialRating.score,
-//         accountabilityRating: organization.currentRating.accountabilityRating.score
-//     };
-//     return orgRatingDetails;
-// };
 
 OrganizationsCalls.simplifyOrgDetails = function simplifyOrgDetails(organization) {
     console.log(organization, 'ooo')
